@@ -1,3 +1,11 @@
-export const EMBEDDED_SOURCES: Record<string, string> = {
-  "Sample Source": "<h1>פרק א</h1>\nזהו טקסט לדוגמה שנועד לבדיקת המערכת.\nהוא מכיל פסקאות שונות שניתן להשוות אליהן.\n<h1>פרק ב</h1>\nכאן יש עוד קצת טקסט כדי לראות איך המערכת מתמודדת עם כותרות שונות."
-};
+// This file dynamically imports all .txt files from the /sources directory at build time.
+// You can add your TXT files to the /sources folder and they will be bundled automatically.
+
+const modules = import.meta.glob('/sources/*.txt', { query: '?raw', eager: true });
+
+export const EMBEDDED_SOURCES: Record<string, string> = {};
+
+for (const path in modules) {
+  const fileName = path.split('/').pop()?.replace('.txt', '') || path;
+  EMBEDDED_SOURCES[fileName] = (modules[path] as any).default || modules[path];
+}
